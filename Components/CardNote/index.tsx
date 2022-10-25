@@ -1,16 +1,14 @@
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { EditIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
   useColorModeValue,
   Divider,
   Center,
-  Text,
   HStack,
   IconButton,
   Heading,
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { ConfirmationModal } from "../ConfirmationModal";
 import { CreateNoteModal } from "../CreateNoteModal";

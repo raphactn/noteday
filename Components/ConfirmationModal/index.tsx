@@ -20,6 +20,11 @@ export const ConfirmationModal = (props: ModalProps) => {
   const { onConfirm } = props;
   const { isOpen, onClose, onOpen } = useDisclosure();
 
+  const handleConfirm = () => {
+    onConfirm();
+    onClose();
+  };
+
   return (
     <>
       <IconButton
@@ -31,19 +36,17 @@ export const ConfirmationModal = (props: ModalProps) => {
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>
-            Excluir Nota
-          </ModalHeader>
+          <ModalHeader>Excluir Nota</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-          Tem certeza que deseja excluir ? essa ação não poderá ser revertida
+            Tem certeza que deseja excluir ? essa ação não poderá ser revertida
           </ModalBody>
 
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={onClose}>
               Cancelar
             </Button>
-            <Button colorScheme="blue" onClick={onConfirm}>
+            <Button colorScheme="blue" onClick={handleConfirm}>
               Excluir
             </Button>
           </ModalFooter>
