@@ -16,19 +16,18 @@ import { CreateNoteModal } from "../CreateNoteModal";
 
 interface CardProps {
   note: any;
-  index: number;
   setChangeNote: (changeNote: boolean) => void;
   changeNote: boolean;
   notes: any;
 }
 
 export const CardNote = (props: CardProps) => {
-  const { index, setChangeNote, changeNote, notes, note } = props;
+  const { setChangeNote, changeNote, notes, note } = props;
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleDeletNote = (value: any) => {
-    notes.splice(index, 1);
-    localStorage.setItem("notes", JSON.stringify(notes));
+    let arr = notes.filter((e: any) => e.id !== note.id);
+    localStorage.setItem("notes", JSON.stringify(arr));
     setChangeNote(!changeNote);
   };
 
@@ -77,7 +76,25 @@ export const CardNote = (props: CardProps) => {
           </Center>
         </Box>
         <Divider mt={4} mb={5} />
-        <Box>{note.description}</Box>
+        <Box
+          maxH="300px"
+          overflow="auto"
+          p={2}
+          css={{
+            "&::-webkit-scrollbar": {
+              width: "4px",
+            },
+            "&::-webkit-scrollbar-track": {
+              width: "6px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: note.color,
+              borderRadius: "24px",
+            },
+          }}
+        >
+          {note.description}
+        </Box>
       </Flex>
     </>
   );

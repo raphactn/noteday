@@ -21,24 +21,27 @@ const Home = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [changeNote, setChangeNote] = useState(false);
+  const [filterNotes, setFilterNotes] = useState<Array<any>>([]);
 
   useEffect(() => {
     let notesLocal: any = localStorage.getItem("notes");
     setNotes(JSON.parse(notesLocal));
-  }, [modalOpen, changeNote, search]);
+  }, [modalOpen, changeNote]);
 
-  const filterNotes = () => {
+  const filter = () => {
     if (search) {
-      setNotes(
+      setFilterNotes(
         notes.filter((item) =>
           String(item.title).toLowerCase().startsWith(search.toLowerCase())
         )
       );
+    }else{
+      setFilterNotes([])
     }
   };
 
   useEffect(() => {
-    filterNotes();
+    filter();
   }, [search]);
 
   return (
@@ -49,7 +52,7 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Nav />
-      <Container maxW={"container.xl"} mt={10}>
+      <Container maxW={"container.xl"} mt={10} mb={10}>
         <CreateNoteModal open={modalOpen} setOpen={setModalOpen} />
         <Center justifyContent={"space-between"} gap={5}>
           <Box>
@@ -66,29 +69,52 @@ const Home = () => {
                 pointerEvents="none"
                 children={<Search2Icon />}
               />
-             <Input onChange={(e) => setSearch(e.target.value)} placeholder='Procure por Notas' />
+              <Input
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Procure por Notas"
+              />
             </InputGroup>
           </Box>
         </Center>
-        <SimpleGrid columns={{base: 1, md: 2, lg: 4}} spacing={5} mt={10}>
-          {notes?.map((note, i) => (
-            <motion.div
-              initial={{ opacity: 0, y: "2vw" }}
-              animate={{ opacity: 1, y: "0px" }}
-              transition={{ type: "spring", duration: 1, bounce: 0 }}
-            >
-              <Box key={i}>
-                <CardNote
-                  index={i}
-                  note={note}
-                  notes={notes}
-                  changeNote={changeNote}
-                  setChangeNote={setChangeNote}
-                />
-              </Box>
-            </motion.div>
-          ))}
-        </SimpleGrid>
+        {filterNotes.length > 0 ? (
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={5} mt={10}>
+            {filterNotes?.map((note, i) => (
+              <motion.div
+                initial={{ opacity: 0, y: "2vw" }}
+                animate={{ opacity: 1, y: "0px" }}
+                transition={{ type: "spring", duration: 1, bounce: 0 }}
+              >
+                <Box key={i}>
+                  <CardNote
+                    note={note}
+                    notes={notes}
+                    changeNote={changeNote}
+                    setChangeNote={setChangeNote}
+                  />
+                </Box>
+              </motion.div>
+            ))}
+          </SimpleGrid>
+        ) : (
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={5} mt={10}>
+            {notes?.map((note, i) => (
+              <motion.div
+                initial={{ opacity: 0, y: "2vw" }}
+                animate={{ opacity: 1, y: "0px" }}
+                transition={{ type: "spring", duration: 1, bounce: 0 }}
+              >
+                <Box key={i}>
+                  <CardNote
+                    note={note}
+                    notes={notes}
+                    changeNote={changeNote}
+                    setChangeNote={setChangeNote}
+                  />
+                </Box>
+              </motion.div>
+            ))}
+          </SimpleGrid>
+        )}
       </Container>
     </div>
   );

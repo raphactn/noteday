@@ -1,4 +1,4 @@
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, CheckIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
@@ -14,6 +14,9 @@ import {
   FormLabel,
   Input,
   Textarea,
+  Center,
+  Box,
+  IconButton,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
@@ -34,6 +37,7 @@ interface ModalProps {
 
 export const CreateNoteModal = (props: ModalProps) => {
   const { open, data, setOpen } = props;
+  const [color, setColor] = useState("");
   const { isOpen, onClose } = useDisclosure({
     isOpen: open,
     onClose() {
@@ -44,8 +48,10 @@ export const CreateNoteModal = (props: ModalProps) => {
 
   useEffect(() => {
     let notesLocal: any = localStorage.getItem("notes");
-    if(notesLocal){
-        setNote(JSON.parse(notesLocal).filter((item: any) => item.id !== data?.id));
+    if (notesLocal) {
+      setNote(
+        JSON.parse(notesLocal).filter((item: any) => item.id !== data?.id)
+      );
     }
   }, [isOpen]);
 
@@ -53,7 +59,6 @@ export const CreateNoteModal = (props: ModalProps) => {
     initialValues: {
       title: "",
       description: "",
-      color: ""
     },
     onSubmit: (values) => {
       handleAddNote(values);
@@ -65,14 +70,14 @@ export const CreateNoteModal = (props: ModalProps) => {
       formik.setValues({
         title: data?.title,
         description: data?.description,
-        color: data?.color
       });
+      setColor(data.color);
     } else {
       formik.setValues({
         title: "",
         description: "",
-        color: ""
       });
+      setColor('');
     }
   }, [isOpen]);
 
@@ -82,11 +87,22 @@ export const CreateNoteModal = (props: ModalProps) => {
       id: Math.floor(Date.now() * Math.random()).toString(36),
       title: value.title,
       description: value.description,
-      color: value.color
+      color: color,
     });
     localStorage.setItem("notes", JSON.stringify(notes));
     onClose();
   };
+
+  const colors = [
+    "#ED8936",
+    "#ECC94B",
+    "#48BB78",
+    "#4299E1",
+    "#0BC5EA",
+    "#9F7AEA",
+    "#ED64A6",
+    "#E53E3E",
+  ];
 
   return (
     <>
@@ -103,23 +119,31 @@ export const CreateNoteModal = (props: ModalProps) => {
                   <Input
                     type="text"
                     name="title"
+                    required
                     onChange={formik.handleChange}
                     value={formik.values.title}
                   />
                 </FormControl>
                 <FormControl>
                   <FormLabel>Cor</FormLabel>
-                  <Input
-                    type="color"
-                    name="color"
-                    onChange={formik.handleChange}
-                    value={formik.values.color}
-                  />
+                  <Center gap={3} mt={5} mb={2}>
+                    {colors.map((item) => (
+                      <IconButton
+                        icon={color === item ? <CheckIcon /> : <></>}
+                        colorScheme={item}
+                        onClick={() => setColor(item)}
+                        size="sm"
+                        bg={item}
+                        aria-label={""}
+                      />
+                    ))}
+                  </Center>
                 </FormControl>
                 <FormControl>
                   <FormLabel>Descrição</FormLabel>
                   <Textarea
                     name="description"
+                    required
                     onChange={formik.handleChange}
                     value={formik.values.description}
                   />
