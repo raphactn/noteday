@@ -19,13 +19,20 @@ import { CreateNoteModal } from "../Components/CreateNoteModal";
 import Nav from "../Components/Navbar";
 import { WarningToast } from "../Components/WarningToast";
 
+interface Notes {
+  id: string;
+  title: string;
+  color: string;
+  description: string;
+}
+
 const Home = () => {
-  const [notes, setNotes] = useState<Array<any>>([]);
+  const [notes, setNotes] = useState<Array<Notes>>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [changeNote, setChangeNote] = useState(false);
   const [color, setColor] = useState("");
-  const [filterNotes, setFilterNotes] = useState<Array<any>>([]);
+  const [filterNotes, setFilterNotes] = useState<Array<Notes>>([]);
 
   useEffect(() => {
     let notesLocal: any = localStorage.getItem("notes");
