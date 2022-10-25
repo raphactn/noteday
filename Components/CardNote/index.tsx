@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { ConfirmationModal } from "../ConfirmationModal";
 import { CreateNoteModal } from "../CreateNoteModal";
 
 interface CardProps {
@@ -25,7 +26,7 @@ export const CardNote = (props: CardProps) => {
   const { setChangeNote, changeNote, notes, note } = props;
   const [modalOpen, setModalOpen] = useState(false);
 
-  const handleDeletNote = (value: any) => {
+  const handleDeletNote = () => {
     let arr = notes.filter((e: any) => e.id !== note.id);
     localStorage.setItem("notes", JSON.stringify(arr));
     setChangeNote(!changeNote);
@@ -66,11 +67,8 @@ export const CardNote = (props: CardProps) => {
                 aria-label={""}
                 onClick={() => setModalOpen(!modalOpen)}
               />
-              <IconButton
-                size="sm"
-                onClick={handleDeletNote}
-                icon={<DeleteIcon color="red.500" />}
-                aria-label={""}
+              <ConfirmationModal
+                onConfirm={() => handleDeletNote()}
               />
             </HStack>
           </Center>
