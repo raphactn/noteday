@@ -13,13 +13,13 @@ import {
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import Head from "next/head";
-import { useRouter } from "next/router";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CardNote } from "../Components/CardNote";
 import { CreateNoteModal } from "../Components/CreateNoteModal";
 import Nav from "../Components/Navbar";
 import { WarningToast } from "../Components/WarningToast";
-import { UserContext } from "../context/UserContext";
+import { database } from "../services/firebase";
+import { collection, getDocs } from 'firebase/firestore'
 
 interface Notes {
   id: string;
@@ -29,18 +29,24 @@ interface Notes {
 }
 
 const Home = () => {
-  const [notes, setNotes] = useState<Array<Notes>>([]);
+  const [notes, setNotes] = useState<Array<any>>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [changeNote, setChangeNote] = useState(false);
   const [color, setColor] = useState("");
+  const databaseRef = collection(database, 'notes')
   const [filterNotes, setFilterNotes] = useState<Array<Notes>>([]);
-  const { user, setUser }: any = useContext(UserContext);
-  const router = useRouter()
-  
+
   useEffect(() => {
-    let notesLocal: any = localStorage.getItem("notes");
-    setNotes(JSON.parse(notesLocal));
+    const getData = async () => {
+       await getDocs(databaseRef)
+       .then((response) => {
+        return setNotes(response.docs.map((data) => {
+           return { ...data.data(), id: data.id }
+         }));
+       })
+    }
+    getData()
   }, [modalOpen, changeNote]);
 
   const filterSearch = () => {
@@ -64,11 +70,6 @@ const Home = () => {
   };
 
   useEffect(() => {
-    setSearch("");
-    setColor("");
-  }, [changeNote]);
-
-  useEffect(() => {
     if (search) {
       filterSearch();
     } else {
@@ -86,8 +87,8 @@ const Home = () => {
     { name: "Rose", color: "#ED64A6" },
     { name: "Vermelho", color: "#E53E3E" },
   ];
-  console.log(user)
-  return ( 
+
+  return (
     <div>
       <Head>
         <title>Home - Notes Day</title>
@@ -96,7 +97,7 @@ const Home = () => {
       </Head>
       <Nav />
       <Container maxW={"container.xl"} mt={10} mb={10}>
-        <CreateNoteModal open={modalOpen} setOpen={setModalOpen} />
+        <CreateNoteModal open={modalOpen} setOpen={setModalOpen} data={undefined}/>
         <WarningToast />
         <Flex
           justifyContent={"space-between"}
@@ -155,7 +156,6 @@ const Home = () => {
                   <Box key={i}>
                     <CardNote
                       note={note}
-                      notes={notes}
                       changeNote={changeNote}
                       setChangeNote={setChangeNote}
                     />
@@ -172,7 +172,6 @@ const Home = () => {
                   <Box>
                     <CardNote
                       note={note}
-                      notes={notes}
                       changeNote={changeNote}
                       setChangeNote={setChangeNote}
                     />

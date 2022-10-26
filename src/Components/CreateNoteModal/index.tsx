@@ -1,4 +1,4 @@
-import { AddIcon, CheckIcon } from "@chakra-ui/icons";
+import { CheckIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
@@ -14,13 +14,14 @@ import {
   FormLabel,
   Input,
   Textarea,
+  useToast,
   Center,
-  Box,
   IconButton,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
-import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { database } from "../../services/firebase";
 
 interface NoteProps {
   title: string;
@@ -32,28 +33,20 @@ interface NoteProps {
 interface ModalProps {
   setOpen: (open: boolean) => void;
   open: boolean;
-  data?: NoteProps;
+  data: NoteProps | any;
 }
 
 export const CreateNoteModal = (props: ModalProps) => {
   const { open, data, setOpen } = props;
   const [color, setColor] = useState("");
+  const databaseRef = collection(database, "notes");
+  const toast = useToast();
   const { isOpen, onClose } = useDisclosure({
     isOpen: open,
     onClose() {
       setOpen(!open);
     },
   });
-  const [note, setNote] = useState<Array<any>>([]);
-
-  useEffect(() => {
-    let notesLocal: any = localStorage.getItem("notes");
-    if (notesLocal) {
-      setNote(
-        JSON.parse(notesLocal).filter((item: any) => item.id !== data?.id)
-      );
-    }
-  }, [isOpen]);
 
   const formik = useFormik({
     initialValues: {
@@ -61,7 +54,11 @@ export const CreateNoteModal = (props: ModalProps) => {
       description: "",
     },
     onSubmit: (values) => {
-      handleAddNote(values);
+      if (data) {
+        handleUpdateNote(values);
+      } else {
+        handleAddNote(values);
+      }
     },
   });
 
@@ -77,19 +74,59 @@ export const CreateNoteModal = (props: ModalProps) => {
         title: "",
         description: "",
       });
-      setColor('');
+      setColor("");
     }
   }, [isOpen]);
 
   const handleAddNote = (value: any) => {
-    const notes = [];
-    notes.push(...note, {
-      id: Math.floor(Date.now() * Math.random()).toString(36),
+    const note = {
       title: value.title,
       description: value.description,
       color: color,
+    };
+    addDoc(databaseRef, note)
+      .then(() => {
+        toast({
+          title: `Nota adicionada com sucesso!`,
+          position: "top-right",
+          status: "success",
+          isClosable: true,
+        });
+      })
+      .catch((err) => {
+        toast({
+          title: `Erro ao adicionar a nota :(`,
+          position: "top-right",
+          status: "error",
+          isClosable: true,
+        });
+      });
+    onClose();
+  };
+
+  const handleUpdateNote = async (value: any) => {
+    let fieldToEdit = doc(database, "notes", data.id);
+    await updateDoc(fieldToEdit, {
+      title: value.title,
+      description: value.description,
+      color: color,
+    })
+    .then(() => {
+      toast({
+        title: `Nota editada com sucesso!`,
+        position: "top-right",
+        status: "success",
+        isClosable: true,
+      });
+    })
+    .catch((err) => {
+      toast({
+        title: `Erro ao editar a nota :(`,
+        position: "top-right",
+        status: "error",
+        isClosable: true,
+      });
     });
-    localStorage.setItem("notes", JSON.stringify(notes));
     onClose();
   };
 
@@ -103,7 +140,7 @@ export const CreateNoteModal = (props: ModalProps) => {
     "#ED64A6",
     "#E53E3E",
   ];
-
+  console.log(data);
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} isCentered>

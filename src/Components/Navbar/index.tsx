@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState, useContext } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -19,19 +19,42 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { FcGoogle } from "react-icons/fc";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  User,
+  signOut,
+} from "firebase/auth";
 import { auth } from "../../services/firebase";
-import { UserContext } from "../../context/UserContext";
-import { useRouter } from "next/router";
 
 export default function Nav() {
   const { colorMode, toggleColorMode } = useColorMode();
-  const { user, setUser }: any = useContext(UserContext);
-  const router = useRouter()
+  const [user, setUser] = useState<User | any>({} as User);
+
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUser(user);
+      }
+    });
+  }, []);
+
+  const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        setUser(result.user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   const logout = () => {
     auth.signOut();
     setUser({});
-    router.push('/login')
   };
 
   return (
@@ -75,9 +98,20 @@ export default function Nav() {
                   <br />
                   <MenuDivider />
                   <Center p={2}>
-                    <MenuItem onClick={logout}>
-                      <Text>Logout</Text>
-                    </MenuItem>
+                    {!user.providerId ? (
+                      <Button
+                        w={"full"}
+                        variant={"outline"}
+                        leftIcon={<FcGoogle />}
+                        onClick={handleGoogleSignIn}
+                      >
+                        <Text>Sign in with Google</Text>
+                      </Button>
+                    ) : (
+                      <MenuItem onClick={logout}>
+                        <Text>Logout</Text>
+                      </MenuItem>
+                    )}
                   </Center>
                 </MenuList>
               </Menu>

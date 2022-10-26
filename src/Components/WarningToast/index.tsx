@@ -5,10 +5,9 @@ import {
   CloseButton,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
 
 export const WarningToast = () => {
-  const { isOpen, onClose } = useDisclosure({defaultIsOpen: true});
+  const { isOpen, onClose } = useDisclosure({defaultIsOpen: false});
 
   return (
     isOpen ? (

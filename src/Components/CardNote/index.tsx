@@ -5,6 +5,7 @@ import {
   useColorModeValue,
   Divider,
   Center,
+  useToast,
   HStack,
   IconButton,
   Heading,
@@ -12,21 +13,39 @@ import {
 import { useEffect, useState } from "react";
 import { ConfirmationModal } from "../ConfirmationModal";
 import { CreateNoteModal } from "../CreateNoteModal";
+import {doc, deleteDoc } from "firebase/firestore";
+import { database } from "../../services/firebase";
 
 interface CardProps {
-  note: any;
+  note?: any;
   setChangeNote: (changeNote: boolean) => void;
   changeNote: boolean;
-  notes: any;
 }
 
 export const CardNote = (props: CardProps) => {
-  const { setChangeNote, changeNote, notes, note } = props;
+  const { setChangeNote, changeNote, note } = props;
   const [modalOpen, setModalOpen] = useState(false);
+  const toast = useToast();
 
   const handleDeletNote = () => {
-    let arr = notes.filter((e: any) => e.id !== note.id);
-    localStorage.setItem("notes", JSON.stringify(arr));
+    let fieldToDelete = doc(database, "notes", note.id);
+    deleteDoc(fieldToDelete)
+    .then(() => {
+      toast({
+        title: `Nota excluida com sucesso!`,
+        position: "top-right",
+        status: "success",
+        isClosable: true,
+      });
+    })
+    .catch((err) => {
+      toast({
+        title: `Erro ao excluir a nota :(`,
+        position: "top-right",
+        status: "error",
+        isClosable: true,
+      });
+    });
     setChangeNote(!changeNote);
   };
 
@@ -39,12 +58,7 @@ export const CardNote = (props: CardProps) => {
       <CreateNoteModal
         open={modalOpen}
         setOpen={setModalOpen}
-        data={{
-          description: note.description,
-          id: note.id,
-          title: note.title,
-          color: note.color,
-        }}
+        data={note}
       />
       <Flex
         bg={useColorModeValue("gray.100", "gray.900")}
