@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useContext } from "react";
 import {
   Box,
   Flex,
@@ -11,7 +11,6 @@ import {
   MenuItem,
   Text,
   MenuDivider,
-  useDisclosure,
   useColorModeValue,
   Stack,
   useColorMode,
@@ -23,29 +22,20 @@ import { FcGoogle } from "react-icons/fc";
 import {
   GoogleAuthProvider,
   signInWithPopup,
-  User,
-  signOut,
 } from "firebase/auth";
 import { auth } from "../../services/firebase";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function Nav() {
   const { colorMode, toggleColorMode } = useColorMode();
-  const [user, setUser] = useState<User | any>({} as User);
-
-  useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUser(user);
-      }
-    });
-  }, []);
+  const { currentUser, setCurrentUser }: any = useContext(AuthContext)
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
 
     signInWithPopup(auth, provider)
       .then((result) => {
-        setUser(result.user);
+        setCurrentUser(result.user);
       })
       .catch((error) => {
         console.log(error);
@@ -54,7 +44,7 @@ export default function Nav() {
 
   const logout = () => {
     auth.signOut();
-    setUser({});
+    setCurrentUser({});
   };
 
   return (
@@ -80,8 +70,8 @@ export default function Nav() {
                 >
                   <Avatar
                     size={"sm"}
-                    name={user.displayName as string}
-                    src={user.photoURL as string}
+                    name={currentUser?.displayName as string}
+                    src={currentUser?.photoURL as string}
                   />
                 </MenuButton>
                 <MenuList alignItems={"center"}>
@@ -89,16 +79,16 @@ export default function Nav() {
                   <Center>
                     <Avatar
                       size={"2xl"}
-                      name={user.displayName as string}
-                      src={user.photoURL as string}
+                      name={currentUser?.displayName as string}
+                      src={currentUser?.photoURL as string}
                     />
                   </Center>
                   <br />
-                  <Center>{user.displayName as string}</Center>
+                  <Center>{currentUser?.displayName as string}</Center>
                   <br />
                   <MenuDivider />
                   <Center p={2}>
-                    {!user.providerId ? (
+                    {!currentUser?.providerId ? (
                       <Button
                         w={"full"}
                         variant={"outline"}
@@ -109,7 +99,7 @@ export default function Nav() {
                       </Button>
                     ) : (
                       <MenuItem onClick={logout}>
-                        <Text>Logout</Text>
+                        Logout
                       </MenuItem>
                     )}
                   </Center>
@@ -121,7 +111,4 @@ export default function Nav() {
       </Box>
     </>
   );
-}
-function then(arg0: (result: any) => void) {
-  throw new Error("Function not implemented.");
 }

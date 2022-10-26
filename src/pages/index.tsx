@@ -13,19 +13,21 @@ import {
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { CardNote } from "../Components/CardNote";
 import { CreateNoteModal } from "../Components/CreateNoteModal";
 import Nav from "../Components/Navbar";
 import { WarningToast } from "../Components/WarningToast";
 import { database } from "../services/firebase";
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, getDocs } from "firebase/firestore";
+import { AuthContext } from "../context/AuthContext";
 
 interface Notes {
   id: string;
   title: string;
   color: string;
   description: string;
+  userId: string;
 }
 
 const Home = () => {
@@ -34,20 +36,29 @@ const Home = () => {
   const [search, setSearch] = useState("");
   const [changeNote, setChangeNote] = useState(false);
   const [color, setColor] = useState("");
-  const databaseRef = collection(database, 'notes')
+  const databaseRef = collection(database, "notes");
   const [filterNotes, setFilterNotes] = useState<Array<Notes>>([]);
+  const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
-    const getData = async () => {
-       await getDocs(databaseRef)
-       .then((response) => {
-        return setNotes(response.docs.map((data) => {
-           return { ...data.data(), id: data.id }
-         }));
-       })
+    if(!currentUser){
+      setNotes([])
     }
-    getData()
-  }, [modalOpen, changeNote]);
+    const getData = async () => {
+      await getDocs(databaseRef).then((response) => {
+        return setNotes(
+          response.docs
+            .map((data) => {
+              return { ...data.data(), id: data.id };
+            })
+            .filter((note: any) => {
+              return note.userId === currentUser?.uid;
+            })
+        );
+      });
+    };
+    getData();
+  }, [modalOpen, changeNote, currentUser]);
 
   const filterSearch = () => {
     if (search) {
@@ -97,7 +108,11 @@ const Home = () => {
       </Head>
       <Nav />
       <Container maxW={"container.xl"} mt={10} mb={10}>
-        <CreateNoteModal open={modalOpen} setOpen={setModalOpen} data={undefined}/>
+        <CreateNoteModal
+          open={modalOpen}
+          setOpen={setModalOpen}
+          data={undefined}
+        />
         <WarningToast />
         <Flex
           justifyContent={"space-between"}

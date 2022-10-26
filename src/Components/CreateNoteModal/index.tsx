@@ -19,9 +19,10 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { database } from "../../services/firebase";
+import { AuthContext } from "../../context/AuthContext";
 
 interface NoteProps {
   title: string;
@@ -40,6 +41,7 @@ export const CreateNoteModal = (props: ModalProps) => {
   const { open, data, setOpen } = props;
   const [color, setColor] = useState("");
   const databaseRef = collection(database, "notes");
+  const { currentUser } = useContext(AuthContext);
   const toast = useToast();
   const { isOpen, onClose } = useDisclosure({
     isOpen: open,
@@ -83,6 +85,7 @@ export const CreateNoteModal = (props: ModalProps) => {
       title: value.title,
       description: value.description,
       color: color,
+      userId: currentUser.uid,
     };
     addDoc(databaseRef, note)
       .then(() => {
@@ -111,22 +114,22 @@ export const CreateNoteModal = (props: ModalProps) => {
       description: value.description,
       color: color,
     })
-    .then(() => {
-      toast({
-        title: `Nota editada com sucesso!`,
-        position: "top-right",
-        status: "success",
-        isClosable: true,
+      .then(() => {
+        toast({
+          title: `Nota editada com sucesso!`,
+          position: "top-right",
+          status: "success",
+          isClosable: true,
+        });
+      })
+      .catch((err) => {
+        toast({
+          title: `Erro ao editar a nota :(`,
+          position: "top-right",
+          status: "error",
+          isClosable: true,
+        });
       });
-    })
-    .catch((err) => {
-      toast({
-        title: `Erro ao editar a nota :(`,
-        position: "top-right",
-        status: "error",
-        isClosable: true,
-      });
-    });
     onClose();
   };
 
@@ -140,7 +143,7 @@ export const CreateNoteModal = (props: ModalProps) => {
     "#ED64A6",
     "#E53E3E",
   ];
-  console.log(data);
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
