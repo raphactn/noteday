@@ -55,7 +55,7 @@ export default function Nav() {
             <Heading fontSize="larger">Notes Day</Heading>
           </Box>
 
-          <Flex alignItems={"center"}>
+          <Flex alignItems={"center"} zIndex={99}>
             <Stack direction={"row"} spacing={7}>
               <Button onClick={toggleColorMode}>
                 {colorMode === "light" ? <MoonIcon /> : <SunIcon />}

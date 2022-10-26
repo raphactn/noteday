@@ -121,6 +121,7 @@ const Home = () => {
         >
           <Box>
             <Button
+              disabled={currentUser.uid ? false : true}
               rightIcon={<AddIcon />}
               onClick={() => setModalOpen(!modalOpen)}
             >
