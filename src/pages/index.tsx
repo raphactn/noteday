@@ -13,11 +13,13 @@ import {
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useContext, useEffect, useState } from "react";
 import { CardNote } from "../Components/CardNote";
 import { CreateNoteModal } from "../Components/CreateNoteModal";
 import Nav from "../Components/Navbar";
 import { WarningToast } from "../Components/WarningToast";
+import { UserContext } from "../context/UserContext";
 
 interface Notes {
   id: string;
@@ -33,7 +35,9 @@ const Home = () => {
   const [changeNote, setChangeNote] = useState(false);
   const [color, setColor] = useState("");
   const [filterNotes, setFilterNotes] = useState<Array<Notes>>([]);
-
+  const { user, setUser }: any = useContext(UserContext);
+  const router = useRouter()
+  
   useEffect(() => {
     let notesLocal: any = localStorage.getItem("notes");
     setNotes(JSON.parse(notesLocal));
@@ -82,8 +86,8 @@ const Home = () => {
     { name: "Rose", color: "#ED64A6" },
     { name: "Vermelho", color: "#E53E3E" },
   ];
-
-  return (
+  console.log(user)
+  return ( 
     <div>
       <Head>
         <title>Home - Notes Day</title>
@@ -115,8 +119,10 @@ const Home = () => {
                 placeholder={"Filtre por cor"}
               >
                 <option>Todas as cores</option>
-                {colors.map((color) => (
-                  <option value={color.color}>{color.name}</option>
+                {colors.map((color, i) => (
+                  <option key={i} value={color.color}>
+                    {color.name}
+                  </option>
                 ))}
               </Select>
             </Box>
@@ -141,6 +147,7 @@ const Home = () => {
           {filterNotes.length > 0
             ? filterNotes?.map((note, i) => (
                 <motion.div
+                  key={i}
                   initial={{ opacity: 0, y: "2vw" }}
                   animate={{ opacity: 1, y: "0px" }}
                   transition={{ type: "spring", duration: 1, bounce: 0 }}
@@ -157,11 +164,12 @@ const Home = () => {
               ))
             : notes?.map((note, i) => (
                 <motion.div
+                  key={i}
                   initial={{ opacity: 0, y: "2vw" }}
                   animate={{ opacity: 1, y: "0px" }}
                   transition={{ type: "spring", duration: 1, bounce: 0 }}
                 >
-                  <Box key={i}>
+                  <Box>
                     <CardNote
                       note={note}
                       notes={notes}

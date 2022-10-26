@@ -127,8 +127,9 @@ export const CreateNoteModal = (props: ModalProps) => {
                 <FormControl>
                   <FormLabel>Cor</FormLabel>
                   <Center gap={3} mt={5} mb={2}>
-                    {colors.map((item) => (
+                    {colors.map((item, i) => (
                       <IconButton
+                        key={i}
                         icon={color === item ? <CheckIcon /> : <></>}
                         colorScheme={item}
                         onClick={() => setColor(item)}
