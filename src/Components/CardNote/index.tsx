@@ -9,12 +9,14 @@ import {
   HStack,
   IconButton,
   Heading,
+  Button,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { ConfirmationModal } from "../ConfirmationModal";
 import { CreateNoteModal } from "../CreateNoteModal";
-import {doc, deleteDoc } from "firebase/firestore";
+import { doc, deleteDoc } from "firebase/firestore";
 import { database } from "../../services/firebase";
+import { MdContentCopy } from "react-icons/md";
 
 interface CardProps {
   note?: any;
@@ -27,25 +29,36 @@ export const CardNote = (props: CardProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const toast = useToast();
 
-  const handleDeletNote = () => {
-    let fieldToDelete = doc(database, "notes", note.id);
-    deleteDoc(fieldToDelete)
-    .then(() => {
+  const handleCopy = (value: string) => {
+    navigator.clipboard.writeText(value).then(() => {
       toast({
-        title: `Nota excluida com sucesso!`,
+        title: `Nota copiada!`,
         position: "top-right",
         status: "success",
         isClosable: true,
       });
-    })
-    .catch((err) => {
-      toast({
-        title: `Erro ao excluir a nota :(`,
-        position: "top-right",
-        status: "error",
-        isClosable: true,
-      });
     });
+  };
+
+  const handleDeletNote = () => {
+    let fieldToDelete = doc(database, "notes", note.id);
+    deleteDoc(fieldToDelete)
+      .then(() => {
+        toast({
+          title: `Nota excluida com sucesso!`,
+          position: "top-right",
+          status: "success",
+          isClosable: true,
+        });
+      })
+      .catch((err) => {
+        toast({
+          title: `Erro ao excluir a nota :(`,
+          position: "top-right",
+          status: "error",
+          isClosable: true,
+        });
+      });
     setChangeNote(!changeNote);
   };
 
@@ -55,18 +68,14 @@ export const CardNote = (props: CardProps) => {
 
   return (
     <>
-      <CreateNoteModal
-        open={modalOpen}
-        setOpen={setModalOpen}
-        data={note}
-      />
+      <CreateNoteModal open={modalOpen} setOpen={setModalOpen} data={note} />
       <Flex
         bg={useColorModeValue("gray.100", "gray.900")}
         direction="column"
         p={5}
         rounded={"xl"}
         borderBottom={`7px solid ${note.color}`}
-        boxShadow='rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px'
+        boxShadow="rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px"
       >
         <Box>
           <Center justifyContent={"space-between"} gap={5}>
@@ -80,9 +89,7 @@ export const CardNote = (props: CardProps) => {
                 aria-label={""}
                 onClick={() => setModalOpen(!modalOpen)}
               />
-              <ConfirmationModal
-                onConfirm={() => handleDeletNote()}
-              />
+              <ConfirmationModal onConfirm={() => handleDeletNote()} />
             </HStack>
           </Center>
         </Box>
@@ -106,6 +113,14 @@ export const CardNote = (props: CardProps) => {
         >
           {note.description}
         </Box>
+        <Divider mt={5} mb={5} />
+        <Button
+          rightIcon={<MdContentCopy fontSize={"20px"} />}
+          size={"sm"}
+          onClick={() => handleCopy(note.description)}
+        >
+          Copiar
+        </Button>
       </Flex>
     </>
   );
