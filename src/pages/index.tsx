@@ -38,7 +38,6 @@ const Home = () => {
   const [changeNote, setChangeNote] = useState(false);
   const [color, setColor] = useState("");
   const databaseRef = collection(database, "notes");
-  const [filterNotes, setFilterNotes] = useState<Array<Notes>>([]);
   const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
@@ -63,21 +62,21 @@ const Home = () => {
 
   const filterSearch = () => {
     if (search) {
-      setFilterNotes(
+      setNotes(
         notes.filter((item) =>
           String(item.title).toLowerCase().startsWith(search.toLowerCase())
         )
       );
     } else {
-      setFilterNotes([]);
+      setChangeNote(!changeNote);
     }
   };
 
   const filterColor = () => {
     if (color) {
-      setFilterNotes(notes.filter((item) => item.color === color));
+      setNotes(notes.filter((item) => item.color === color));
     } else {
-      setFilterNotes([]);
+      setChangeNote(!changeNote);
     }
   };
 
@@ -185,39 +184,22 @@ const Home = () => {
             mt={10}
             mb={10}
           >
-            {filterNotes.length > 0
-              ? filterNotes?.map((note, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: "2vw" }}
-                    animate={{ opacity: 1, y: "0px" }}
-                    transition={{ type: "spring", duration: 1, bounce: 0 }}
-                  >
-                    <Box key={i}>
-                      <CardNote
-                        note={note}
-                        changeNote={changeNote}
-                        setChangeNote={setChangeNote}
-                      />
-                    </Box>
-                  </motion.div>
-                ))
-              : notes?.map((note, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: "2vw" }}
-                    animate={{ opacity: 1, y: "0px" }}
-                    transition={{ type: "spring", duration: 1, bounce: 0 }}
-                  >
-                    <Box>
-                      <CardNote
-                        note={note}
-                        changeNote={changeNote}
-                        setChangeNote={setChangeNote}
-                      />
-                    </Box>
-                  </motion.div>
-                ))}
+            {notes?.map((note, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: "2vw" }}
+                animate={{ opacity: 1, y: "0px" }}
+                transition={{ type: "spring", duration: 1, bounce: 0 }}
+              >
+                <Box>
+                  <CardNote
+                    note={note}
+                    changeNote={changeNote}
+                    setChangeNote={setChangeNote}
+                  />
+                </Box>
+              </motion.div>
+            ))}
           </SimpleGrid>
         </Container>
       </Box>

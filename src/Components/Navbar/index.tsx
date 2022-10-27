@@ -20,7 +20,12 @@ import {
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { FcGoogle } from "react-icons/fc";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { FaFacebook } from "react-icons/fa";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  FacebookAuthProvider,
+} from "firebase/auth";
 import { auth } from "../../services/firebase";
 import { AuthContext } from "../../context/AuthContext";
 import { CiLogout } from "react-icons/ci";
@@ -31,6 +36,18 @@ export default function Nav() {
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
+
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        setCurrentUser(result.user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const handleFacebookSignIn = async () => {
+    const provider = new FacebookAuthProvider();
 
     signInWithPopup(auth, provider)
       .then((result) => {
@@ -69,8 +86,8 @@ export default function Nav() {
                 >
                   <Avatar
                     size={"md"}
-                    bg={'#5271ff'}
-                    name={currentUser?.displayName as string || 'Notes Day'}
+                    bg={"#5271ff"}
+                    name={(currentUser?.displayName as string) || "Notes Day"}
                     src={currentUser?.photoURL as string}
                   />
                 </MenuButton>
@@ -78,9 +95,9 @@ export default function Nav() {
                   <br />
                   <Center>
                     <Avatar
-                      bg={'#5271ff'}
+                      bg={"#5271ff"}
                       size={"2xl"}
-                      name={currentUser?.displayName as string || 'Notes Day'}
+                      name={(currentUser?.displayName as string) || "Notes Day"}
                       src={currentUser?.photoURL as string}
                     />
                   </Center>
@@ -89,7 +106,17 @@ export default function Nav() {
                   <br />
                   <MenuDivider />
                   {!currentUser?.providerId ? (
-                    <Center p={2}>
+                    <Center p={2} gap={3} flexDirection="column">
+                      <Button
+                        w={"full"}
+                        colorScheme={"facebook"}
+                        leftIcon={<FaFacebook />}
+                        onClick={handleFacebookSignIn}
+                      >
+                        <Center>
+                          <Text>Continue with Facebook</Text>
+                        </Center>
+                      </Button>
                       <Button
                         w={"full"}
                         variant={"outline"}
