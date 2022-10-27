@@ -1,5 +1,7 @@
-import * as XLSX from "xlsx";
 import { useEffect, useContext, useState } from "react";
+//@ts-ignore
+import * as FileSaver from 'file-saver'
+import XLSX from 'sheetjs-style'
 import {
   Box,
   Flex,
@@ -36,6 +38,8 @@ export default function Nav(props: NavProps) {
   const { colorMode, toggleColorMode } = useColorMode();
   const { currentUser, setCurrentUser }: any = useContext(AuthContext);
   const [file, setFile] = useState<any>({});
+  const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+  const fileExtension = '.xlsx'
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
@@ -54,7 +58,7 @@ export default function Nav(props: NavProps) {
     setCurrentUser({});
   };
 
-  const handleDownload = () => {
+  useEffect(() => {
     if (notes.length > 0) {
       setFile(
         notes.map((note: { title: string; description: string }) => {
@@ -64,10 +68,18 @@ export default function Nav(props: NavProps) {
           };
         })
       );
-      const worksheet = XLSX.utils.json_to_sheet(file);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-      XLSX.writeFile(workbook, "NotesDay.xlsx");
+    } else {
+      setFile([]);
+    }
+  }, [notes]);
+
+  const handleDownload = () => {
+    if (notes.length > 0) {
+     const ws = XLSX.utils.json_to_sheet(file);
+     const wb = {Sheets: { 'data': ws}, SheetNames: ['data']};
+     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array'});
+     const data = new Blob([excelBuffer], {type: fileType})
+     FileSaver.saveAs(data, 'NoteDay' + fileExtension);
     }
   };
 
