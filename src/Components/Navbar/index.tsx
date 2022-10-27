@@ -20,12 +20,7 @@ import {
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebook } from "react-icons/fa";
-import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  FacebookAuthProvider,
-} from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../services/firebase";
 import { AuthContext } from "../../context/AuthContext";
 import { CiLogout } from "react-icons/ci";
@@ -36,18 +31,6 @@ export default function Nav() {
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
-
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        setCurrentUser(result.user);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
-  const handleFacebookSignIn = async () => {
-    const provider = new FacebookAuthProvider();
 
     signInWithPopup(auth, provider)
       .then((result) => {
@@ -106,17 +89,7 @@ export default function Nav() {
                   <br />
                   <MenuDivider />
                   {!currentUser?.providerId ? (
-                    <Center p={2} gap={3} flexDirection="column">
-                      <Button
-                        w={"full"}
-                        colorScheme={"facebook"}
-                        leftIcon={<FaFacebook />}
-                        onClick={handleFacebookSignIn}
-                      >
-                        <Center>
-                          <Text>Continue with Facebook</Text>
-                        </Center>
-                      </Button>
+                    <Center p={2}>
                       <Button
                         w={"full"}
                         variant={"outline"}
