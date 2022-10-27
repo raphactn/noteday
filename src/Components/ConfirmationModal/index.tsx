@@ -39,7 +39,7 @@ export const ConfirmationModal = (props: ModalProps) => {
           <ModalHeader>Excluir Nota</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            Tem certeza que deseja excluir ? essa ação não poderá ser revertida
+            Tem certeza que deseja excluir ? Essa ação não pode ser desfeita.
           </ModalBody>
 
           <ModalFooter>

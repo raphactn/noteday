@@ -1,9 +1,9 @@
-import { useEffect, useContext } from "react";
+import * as XLSX from "xlsx";
+import { useEffect, useContext, useState } from "react";
 import {
   Box,
   Flex,
   Avatar,
-  Link,
   Button,
   Menu,
   MenuButton,
@@ -15,9 +15,11 @@ import {
   Stack,
   useColorMode,
   Center,
-  Heading,
   Image,
+  IconButton,
+  Tooltip,
 } from "@chakra-ui/react";
+import { BsDownload } from "react-icons/bs";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { FcGoogle } from "react-icons/fc";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -25,9 +27,15 @@ import { auth } from "../../services/firebase";
 import { AuthContext } from "../../context/AuthContext";
 import { CiLogout } from "react-icons/ci";
 
-export default function Nav() {
+interface NavProps {
+  notes?: any;
+}
+
+export default function Nav(props: NavProps) {
+  const { notes } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const { currentUser, setCurrentUser }: any = useContext(AuthContext);
+  const [file, setFile] = useState<any>({});
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
@@ -46,6 +54,23 @@ export default function Nav() {
     setCurrentUser({});
   };
 
+  const handleDownload = () => {
+    if (notes.length > 0) {
+      setFile(
+        notes.map((note: { title: string; description: string }) => {
+          return {
+            titulo: note.title,
+            descricao: note.description,
+          };
+        })
+      );
+      const worksheet = XLSX.utils.json_to_sheet(file);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+      XLSX.writeFile(workbook, "NotesDay.xlsx");
+    }
+  };
+
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -53,12 +78,24 @@ export default function Nav() {
           <Box p={3}>
             <Image src="/logo.png" w="110px" />
           </Box>
-
           <Flex alignItems={"center"} zIndex={99}>
-            <Stack direction={"row"} alignItems="center" spacing={7}>
-              <Button onClick={toggleColorMode}>
-                {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-              </Button>
+            <Stack direction={"row"} alignItems="center" spacing={5}>
+              <Tooltip
+                label="Clique para fazer Download de todas as suas notas"
+                aria-label="A tooltip"
+              >
+                <IconButton
+                  onClick={handleDownload}
+                  disabled={notes.length > 0 ? false : true}
+                  icon={<BsDownload />}
+                  aria-label={""}
+                />
+              </Tooltip>
+              <IconButton
+                onClick={toggleColorMode}
+                icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+                aria-label={""}
+              />
               <Menu>
                 <MenuButton
                   as={Button}
