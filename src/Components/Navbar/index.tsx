@@ -1,7 +1,4 @@
-import { useEffect, useContext, useState } from "react";
-//@ts-ignore
-import * as FileSaver from 'file-saver'
-import XLSX from 'sheetjs-style'
+import { useContext } from "react";
 import {
   Box,
   Flex,
@@ -19,27 +16,31 @@ import {
   Center,
   Image,
   IconButton,
-  Tooltip,
 } from "@chakra-ui/react";
-import { BsDownload } from "react-icons/bs";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { FcGoogle } from "react-icons/fc";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../services/firebase";
 import { AuthContext } from "../../context/AuthContext";
 import { CiLogout } from "react-icons/ci";
+import { ExportNotes } from "../ExportNotes";
+
+interface Notes {
+  id: string;
+  title: string;
+  color: string;
+  description: string;
+  userId: string;
+}
 
 interface NavProps {
-  notes?: any;
+  notes: Array<Notes>;
 }
 
 export default function Nav(props: NavProps) {
   const { notes } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const { currentUser, setCurrentUser }: any = useContext(AuthContext);
-  const [file, setFile] = useState<any>({});
-  const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-  const fileExtension = '.xlsx'
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
@@ -58,31 +59,6 @@ export default function Nav(props: NavProps) {
     setCurrentUser({});
   };
 
-  useEffect(() => {
-    if (notes.length > 0) {
-      setFile(
-        notes.map((note: { title: string; description: string }) => {
-          return {
-            titulo: note.title,
-            descricao: note.description,
-          };
-        })
-      );
-    } else {
-      setFile([]);
-    }
-  }, [notes]);
-
-  const handleDownload = () => {
-    if (notes.length > 0) {
-     const ws = XLSX.utils.json_to_sheet(file);
-     const wb = {Sheets: { 'data': ws}, SheetNames: ['data']};
-     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array'});
-     const data = new Blob([excelBuffer], {type: fileType})
-     FileSaver.saveAs(data, 'NoteDay' + fileExtension);
-    }
-  };
-
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -92,17 +68,7 @@ export default function Nav(props: NavProps) {
           </Box>
           <Flex alignItems={"center"} zIndex={99}>
             <Stack direction={"row"} alignItems="center" spacing={5}>
-              <Tooltip
-                label="Clique para fazer Download de todas as suas notas"
-                aria-label="A tooltip"
-              >
-                <IconButton
-                  onClick={handleDownload}
-                  disabled={notes.length > 0 ? false : true}
-                  icon={<BsDownload />}
-                  aria-label={""}
-                />
-              </Tooltip>
+              <ExportNotes notes={notes} />
               <IconButton
                 onClick={toggleColorMode}
                 icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
