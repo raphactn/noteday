@@ -24,6 +24,7 @@ import { auth } from "../../services/firebase";
 import { AuthContext } from "../../context/AuthContext";
 import { CiLogout } from "react-icons/ci";
 import { ExportNotes } from "../ExportNotes";
+import { useRouter } from "next/router";
 
 interface Notes {
   id: string;
@@ -41,29 +42,20 @@ export default function Nav(props: NavProps) {
   const { notes } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const { currentUser, setCurrentUser }: any = useContext(AuthContext);
-
-  const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        setCurrentUser(result.user);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+  const router = useRouter()
 
   const logout = () => {
     auth.signOut();
     setCurrentUser({});
+    localStorage.setItem('token', '')
+    router.push('/login')
   };
 
   return (
     <>
-      <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
+      <Box bg={useColorModeValue("gray.100", "gray.900")} px={4} p={3}>
         <Flex alignItems={"center"} justifyContent={"space-between"}>
-          <Box p={3}>
+          <Box>
             <Image src="/logo.png" w="110px" />
           </Box>
           <Flex alignItems={"center"} zIndex={99}>
@@ -85,7 +77,7 @@ export default function Nav(props: NavProps) {
                   <Avatar
                     size={"md"}
                     bg={"#5271ff"}
-                    name={(currentUser?.displayName as string) || "Notes Day"}
+                    name={currentUser?.displayName as string || currentUser.email as string}
                     src={currentUser?.photoURL as string}
                   />
                 </MenuButton>
@@ -95,33 +87,19 @@ export default function Nav(props: NavProps) {
                     <Avatar
                       bg={"#5271ff"}
                       size={"2xl"}
-                      name={(currentUser?.displayName as string) || "Notes Day"}
+                      name={currentUser?.displayName as string || currentUser.email as string}
                       src={currentUser?.photoURL as string}
                     />
                   </Center>
                   <br />
-                  <Center>{currentUser?.displayName as string}</Center>
+                  <Center p={2}>{currentUser?.displayName as string || currentUser.email as string}</Center>
                   <br />
                   <MenuDivider />
-                  {!currentUser?.providerId ? (
-                    <Center p={2}>
-                      <Button
-                        w={"full"}
-                        variant={"outline"}
-                        leftIcon={<FcGoogle />}
-                        onClick={handleGoogleSignIn}
-                      >
-                        <Text>Sign in with Google</Text>
-                      </Button>
-                    </Center>
-                  ) : (
                     <MenuItem onClick={logout}>
                       <Center gap={2}>
-                        {" "}
                         <CiLogout fontSize={"25px"} /> Logout
                       </Center>
                     </MenuItem>
-                  )}
                 </MenuList>
               </Menu>
             </Stack>
