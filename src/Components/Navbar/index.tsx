@@ -77,7 +77,7 @@ export default function Nav(props: NavProps) {
                   <Avatar
                     size={"md"}
                     bg={"#5271ff"}
-                    name={currentUser?.displayName as string || currentUser.email as string}
+                    name={currentUser?.displayName as string || currentUser?.email as string}
                     src={currentUser?.photoURL as string}
                   />
                 </MenuButton>
@@ -87,12 +87,12 @@ export default function Nav(props: NavProps) {
                     <Avatar
                       bg={"#5271ff"}
                       size={"2xl"}
-                      name={currentUser?.displayName as string || currentUser.email as string}
+                      name={currentUser?.displayName as string || currentUser?.email as string}
                       src={currentUser?.photoURL as string}
                     />
                   </Center>
                   <br />
-                  <Center p={2}>{currentUser?.displayName as string || currentUser.email as string}</Center>
+                  <Center p={2}>{currentUser?.displayName as string || currentUser?.email as string}</Center>
                   <br />
                   <MenuDivider />
                     <MenuItem onClick={logout}>
