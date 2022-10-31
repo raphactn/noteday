@@ -10,13 +10,23 @@ import {
   IconButton,
   Heading,
   Button,
+  Tooltip,
+  Portal,
+  Menu,
+  MenuList,
+  MenuItem,
+  MenuButton,
+  Text,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ConfirmationModal } from "../ConfirmationModal";
 import { CreateNoteModal } from "../CreateNoteModal";
-import { doc, deleteDoc } from "firebase/firestore";
+import { doc, deleteDoc, addDoc, collection } from "firebase/firestore";
 import { database } from "../../services/firebase";
 import { MdContentCopy } from "react-icons/md";
+import { CgCopy } from "react-icons/cg";
+import { SlOptionsVertical } from "react-icons/sl";
+import { AuthContext } from "../../context/AuthContext";
 
 interface CardProps {
   note?: any;
@@ -28,6 +38,8 @@ export const CardNote = (props: CardProps) => {
   const { setChangeNote, changeNote, note } = props;
   const [modalOpen, setModalOpen] = useState(false);
   const toast = useToast();
+  const { currentUser } = useContext(AuthContext);
+  const databaseRef = collection(database, "notes");
 
   const handleCopy = (value: string) => {
     navigator.clipboard.writeText(value).then(() => {
@@ -38,6 +50,33 @@ export const CardNote = (props: CardProps) => {
         isClosable: true,
       });
     });
+  };
+
+  const handleCloneNote = (value: any) => {
+    const note = {
+      title: value.title,
+      description: value.description,
+      color: value.color,
+      userId: currentUser.uid,
+    };
+    addDoc(databaseRef, note)
+      .then(() => {
+        toast({
+          title: `Nota adicionada com sucesso!`,
+          position: "top-right",
+          status: "success",
+          isClosable: true,
+        });
+      })
+      .catch((err) => {
+        toast({
+          title: `Erro ao adicionar a nota :(`,
+          position: "top-right",
+          status: "error",
+          isClosable: true,
+        });
+      });
+    setChangeNote(!changeNote);
   };
 
   const handleDeletNote = () => {
@@ -82,15 +121,32 @@ export const CardNote = (props: CardProps) => {
             <Heading wordBreak={"break-word"} fontSize="medium">
               {note.title}
             </Heading>
-            <HStack spacing={2}>
-              <IconButton
-                size="sm"
-                icon={<EditIcon />}
-                aria-label={""}
-                onClick={() => setModalOpen(!modalOpen)}
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                aria-label="Options"
+                icon={<SlOptionsVertical />}
+                variant="outline"
+                size='sm'
               />
-              <ConfirmationModal onConfirm={() => handleDeletNote()} />
-            </HStack>
+              <Portal>
+                <MenuList>
+                  <MenuItem onClick={() => handleCloneNote(note)}>
+                    <Center gap={2}>
+                      <CgCopy />
+                      <Text>Clonar Nota</Text>
+                    </Center>
+                  </MenuItem>
+                  <MenuItem onClick={() => setModalOpen(!modalOpen)}>
+                    <Center gap={2}>
+                      <EditIcon />
+                      <Text>Editar Nota</Text>
+                    </Center>
+                  </MenuItem>
+                  <ConfirmationModal onConfirm={() => handleDeletNote()} />
+                </MenuList>
+              </Portal>
+            </Menu>
           </Center>
         </Box>
         <Divider mt={4} mb={5} />

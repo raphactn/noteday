@@ -19,12 +19,9 @@ const AuthProvider = ({ children }: any) => {
     auth.onAuthStateChanged((user) => {
       if (user) {
         setCurrentUser(user);
-        router.push('/home')
+        router.replace('/home')
       }else{
-        if(router.pathname === '/signup' || router.pathname === '/resetpassword'){
-          return
-        }
-        router.push('/login')
+        router.replace('/login')
       }
     });
   }, []);

@@ -10,6 +10,10 @@ import {
   Button,
   useDisclosure,
   IconButton,
+  Tooltip,
+  MenuItem,
+  Center,
+  Text,
 } from "@chakra-ui/react";
 
 interface ModalProps {
@@ -27,12 +31,12 @@ export const ConfirmationModal = (props: ModalProps) => {
 
   return (
     <>
-      <IconButton
-        size="sm"
-        onClick={onOpen}
-        icon={<DeleteIcon color="red.500" />}
-        aria-label={""}
-      />
+      <MenuItem onClick={onOpen}>
+        <Center gap={2}>
+          <DeleteIcon color="red.500" />
+          <Text>Excluir Nota</Text>
+        </Center>
+      </MenuItem>
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
