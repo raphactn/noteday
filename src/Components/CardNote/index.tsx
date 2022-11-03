@@ -112,7 +112,7 @@ export const CardNote = (props: CardProps) => {
         bg={useColorModeValue("gray.100", "gray.900")}
         direction="column"
         p={5}
-        rounded={"xl"}
+        rounded={"md"}
         borderBottom={`7px solid ${note.color}`}
         boxShadow="rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px"
       >
