@@ -15,9 +15,8 @@ import {
   FormHelperText,
 } from "@chakra-ui/react";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { AuthContext } from "../context/AuthContext";
 import { auth } from "../services/firebase";
 import Link from "next/link";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
@@ -25,9 +24,8 @@ import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 export default function SimpleCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { currentUser, setCurrentUser }: any = useContext(AuthContext);
 
-  const [signInWithEmailAndPassword, user, loading, error] =
+  const [signInWithEmailAndPassword, loading, error]: any =
     useSignInWithEmailAndPassword(auth);
 
   const passwordError = error?.code === "auth/wrong-password";
@@ -40,15 +38,7 @@ export default function SimpleCard() {
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
-
     signInWithPopup(auth, provider)
-      .then((result) => {
-        setCurrentUser(result.user);
-        localStorage.setItem("token", currentUser.accessToken);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
   };
 
   return (

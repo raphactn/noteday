@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import {
   Box,
   Flex,
@@ -8,7 +7,6 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  Text,
   MenuDivider,
   useColorModeValue,
   Stack,
@@ -18,10 +16,8 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
-import { FcGoogle } from "react-icons/fc";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { User } from "firebase/auth";
 import { auth } from "../../services/firebase";
-import { AuthContext } from "../../context/AuthContext";
 import { CiLogout } from "react-icons/ci";
 import { ExportNotes } from "../ExportNotes";
 import { useRouter } from "next/router";
@@ -41,13 +37,11 @@ interface NavProps {
 export default function Nav(props: NavProps) {
   const { notes } = props;
   const { colorMode, toggleColorMode } = useColorMode();
-  const { currentUser, setCurrentUser }: any = useContext(AuthContext);
+  const currentUser: User | null = auth.currentUser
   const router = useRouter()
 
   const logout = () => {
     auth.signOut();
-    setCurrentUser({});
-    localStorage.setItem('token', '')
     router.push('/login')
   };
 

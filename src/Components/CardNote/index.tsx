@@ -18,15 +18,15 @@ import {
   MenuButton,
   Text,
 } from "@chakra-ui/react";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ConfirmationModal } from "../ConfirmationModal";
 import { CreateNoteModal } from "../CreateNoteModal";
 import { doc, deleteDoc, addDoc, collection } from "firebase/firestore";
-import { database } from "../../services/firebase";
+import { auth, database } from "../../services/firebase";
 import { MdContentCopy } from "react-icons/md";
 import { CgCopy } from "react-icons/cg";
 import { SlOptionsVertical } from "react-icons/sl";
-import { AuthContext } from "../../context/AuthContext";
+import { User } from "firebase/auth";
 
 interface CardProps {
   note?: any;
@@ -37,8 +37,8 @@ interface CardProps {
 export const CardNote = (props: CardProps) => {
   const { setChangeNote, changeNote, note } = props;
   const [modalOpen, setModalOpen] = useState(false);
-  const toast = useToast();
-  const { currentUser } = useContext(AuthContext);
+  const toast = useToast()
+  const currentUser: User | null = auth.currentUser
   const databaseRef = collection(database, "notes");
 
   const handleCopy = (value: string) => {
@@ -57,7 +57,7 @@ export const CardNote = (props: CardProps) => {
       title: value.title,
       description: value.description,
       color: value.color,
-      userId: currentUser.uid,
+      userId: currentUser?.uid,
     };
     addDoc(databaseRef, note)
       .then(() => {
@@ -134,7 +134,7 @@ export const CardNote = (props: CardProps) => {
                   <MenuItem onClick={() => handleCloneNote(note)}>
                     <Center gap={2}>
                       <CgCopy />
-                      <Text>Clonar Nota</Text>
+                      <Text>Duplicar Nota</Text>
                     </Center>
                   </MenuItem>
                   <MenuItem onClick={() => setModalOpen(!modalOpen)}>

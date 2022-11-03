@@ -13,15 +13,13 @@ import {
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import Head from "next/head";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { CardNote } from "../Components/CardNote";
 import { CreateNoteModal } from "../Components/CreateNoteModal";
 import Nav from "../Components/Navbar";
 import { WarningToast } from "../Components/WarningToast";
-import { database } from "../services/firebase";
+import { auth, database } from "../services/firebase";
 import { collection, getDocs } from "firebase/firestore";
-import { AuthContext } from "../context/AuthContext";
-import { useRouter } from "next/router";
 
 const Home = () => {
   const [notes, setNotes] = useState<Array<any>>([]);
@@ -30,14 +28,7 @@ const Home = () => {
   const [changeNote, setChangeNote] = useState(false);
   const [color, setColor] = useState("");
   const databaseRef = collection(database, "notes");
-  const { currentUser } = useContext(AuthContext);
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!currentUser) {
-      router.push("/login");
-    }
-  }, [currentUser]);
+  const currentUser = auth.currentUser
 
   useEffect(() => {
     if (!currentUser) {

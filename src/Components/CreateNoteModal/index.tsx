@@ -19,10 +19,10 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
-import { database } from "../../services/firebase";
-import { AuthContext } from "../../context/AuthContext";
+import { auth, database } from "../../services/firebase";
+import { User } from "firebase/auth";
 
 interface NoteProps {
   title: string;
@@ -41,7 +41,7 @@ export const CreateNoteModal = (props: ModalProps) => {
   const { open, data, setOpen } = props;
   const [color, setColor] = useState("");
   const databaseRef = collection(database, "notes");
-  const { currentUser } = useContext(AuthContext);
+  const currentUser: User | null = auth.currentUser
   const toast = useToast();
   const { isOpen, onClose } = useDisclosure({
     isOpen: open,
@@ -85,7 +85,7 @@ export const CreateNoteModal = (props: ModalProps) => {
       title: value.title,
       description: value.description,
       color: color,
-      userId: currentUser.uid,
+      userId: currentUser?.uid,
     };
     addDoc(databaseRef, note)
       .then(() => {

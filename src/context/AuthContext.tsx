@@ -1,8 +1,7 @@
-// context-fb.tsx
 import React, { useEffect, useState, createContext } from "react";
 import { auth } from "../services/firebase";
 import { User } from "firebase/auth";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 
 export interface IAuthContext {
   user: User;
@@ -10,7 +9,7 @@ export interface IAuthContext {
 
 const AuthContext = createContext<any>(null);
 const AuthProvider = ({ children }: any) => {
-  const [currentUser, setCurrentUser] = useState<IAuthContext | null | any>(
+  const [currentUser, setCurrentUser] = useState<IAuthContext | null | User>(
     null
   );
   const router = useRouter()
@@ -27,7 +26,7 @@ const AuthProvider = ({ children }: any) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ currentUser, setCurrentUser }}>
+    <AuthContext.Provider value={{ currentUser }}>
       {children}
     </AuthContext.Provider>
   );

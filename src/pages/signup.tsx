@@ -15,11 +15,10 @@ import {
   useColorModeValue,
   Center,
 } from "@chakra-ui/react";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import Link from "next/link";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { AuthContext } from "../context/AuthContext";
 import { auth } from "../services/firebase";
 import { FcGoogle } from "react-icons/fc";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
@@ -28,9 +27,8 @@ const signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { currentUser, setCurrentUser }: any = useContext(AuthContext);
 
-  const [createUserWithEmailAndPassword, loading, error] =
+  const [createUserWithEmailAndPassword, loading] =
     useCreateUserWithEmailAndPassword(auth);
 
   const handleSignIn = (e: { preventDefault: () => void }) => {
@@ -40,15 +38,7 @@ const signup = () => {
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
-
     signInWithPopup(auth, provider)
-      .then((result) => {
-        setCurrentUser(result.user);
-        localStorage.setItem("token", currentUser.accessToken);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
   };
 
   return (
