@@ -14,31 +14,36 @@ import {
   Image,
   FormHelperText,
 } from "@chakra-ui/react";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { auth } from "../services/firebase";
 import Link from "next/link";
-import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 
 export default function SimpleCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [signInWithEmailAndPassword, loading, error]: any =
-    useSignInWithEmailAndPassword(auth);
-
-  const passwordError = error?.code === "auth/wrong-password";
-  const emailError = error?.code === "auth/user-not-found";
-
-  const handleSignIn = (e: { preventDefault: () => void }) => {
+  const handleSignIn = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    signInWithEmailAndPassword(email, password);
+    try {
+      setLoading(true);
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
+    signInWithPopup(auth, provider);
   };
 
   return (
@@ -65,29 +70,23 @@ export default function SimpleCard() {
           p={8}
         >
           <Stack spacing={4}>
-            <FormControl id="email" isInvalid={emailError}>
+            <FormControl id="email">
               <FormLabel>Inserir Email</FormLabel>
               <Input type="email" onChange={(e) => setEmail(e.target.value)} />
-              {emailError ? (
-                <FormHelperText>Conta de email não encontrada</FormHelperText>
-              ) : null}
             </FormControl>
-            <FormControl id="password" isInvalid={passwordError}>
+            <FormControl id="password">
               <FormLabel>Inserir Senha</FormLabel>
               <Input
                 type="password"
                 onChange={(e) => setPassword(e.target.value)}
               />
-              {passwordError ? (
-                <FormHelperText>Senha incorreta</FormHelperText>
-              ) : null}
             </FormControl>
             <Stack spacing={10}>
               <Button
                 bg={"#5271ff"}
                 color={"white"}
                 _hover={{
-                  opacity: 0.9
+                  opacity: 0.9,
                 }}
                 onClick={handleSignIn}
                 isLoading={loading}

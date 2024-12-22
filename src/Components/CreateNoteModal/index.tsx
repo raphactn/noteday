@@ -23,6 +23,7 @@ import { useState, useEffect } from "react";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { auth, database } from "../../services/firebase";
 import { User } from "firebase/auth";
+import { colors } from "../../utils/colors";
 
 interface NoteProps {
   title: string;
@@ -34,14 +35,14 @@ interface NoteProps {
 interface ModalProps {
   setOpen: (open: boolean) => void;
   open: boolean;
-  data: NoteProps | any;
+  data?: NoteProps;
 }
 
 export const CreateNoteModal = (props: ModalProps) => {
   const { open, data, setOpen } = props;
   const [color, setColor] = useState("");
-  const databaseRef = collection(database, "notes");
-  const currentUser: User | null = auth.currentUser
+  const currentUser: User | null = auth.currentUser;
+  const databaseRef = collection(database, `notes/${currentUser?.uid}/data`);
   const toast = useToast();
   const { isOpen, onClose } = useDisclosure({
     isOpen: open,
@@ -55,7 +56,7 @@ export const CreateNoteModal = (props: ModalProps) => {
       title: "",
       description: "",
     },
-    onSubmit: (values) => {
+    onSubmit: (values: any) => {
       if (data) {
         handleUpdateNote(values);
       } else {
@@ -72,10 +73,7 @@ export const CreateNoteModal = (props: ModalProps) => {
       });
       setColor(data.color);
     } else {
-      formik.setValues({
-        title: "",
-        description: "",
-      });
+      formik.setValues(formik.initialValues);
       setColor("");
     }
   }, [isOpen]);
@@ -85,7 +83,6 @@ export const CreateNoteModal = (props: ModalProps) => {
       title: value.title,
       description: value.description,
       color: color,
-      userId: currentUser?.uid,
     };
     addDoc(databaseRef, note)
       .then(() => {
@@ -107,42 +104,37 @@ export const CreateNoteModal = (props: ModalProps) => {
     onClose();
   };
 
-  const handleUpdateNote = async (value: any) => {
-    let fieldToEdit = doc(database, "notes", data.id);
-    await updateDoc(fieldToEdit, {
-      title: value.title,
-      description: value.description,
-      color: color,
-    })
-      .then(() => {
-        toast({
-          title: `Nota editada com sucesso!`,
-          position: "top-right",
-          status: "success",
-          isClosable: true,
-        });
+  const handleUpdateNote = async (value: NoteProps) => {
+    if (data) {
+      let fieldToEdit = doc(
+        database,
+        `notes/${currentUser?.uid}/data`,
+        data.id
+      );
+      await updateDoc(fieldToEdit, {
+        title: value.title,
+        description: value.description,
+        color: color,
       })
-      .catch((err) => {
-        toast({
-          title: `Erro ao editar a nota :(`,
-          position: "top-right",
-          status: "error",
-          isClosable: true,
+        .then(() => {
+          toast({
+            title: `Nota editada com sucesso!`,
+            position: "top-right",
+            status: "success",
+            isClosable: true,
+          });
+        })
+        .catch((err) => {
+          toast({
+            title: `Erro ao editar a nota :(`,
+            position: "top-right",
+            status: "error",
+            isClosable: true,
+          });
         });
-      });
-    onClose();
+      onClose();
+    }
   };
-
-  const colors = [
-    "#ED8936",
-    "#ECC94B",
-    "#48BB78",
-    "#4299E1",
-    "#0BC5EA",
-    "#9F7AEA",
-    "#ED64A6",
-    "#E53E3E",
-  ];
 
   return (
     <>
@@ -170,11 +162,11 @@ export const CreateNoteModal = (props: ModalProps) => {
                     {colors.map((item, i) => (
                       <IconButton
                         key={i}
-                        icon={color === item ? <CheckIcon /> : <></>}
-                        colorScheme={item}
-                        onClick={() => setColor(item)}
+                        icon={color === item.color ? <CheckIcon /> : <></>}
+                        colorScheme={item.color}
+                        onClick={() => setColor(item.color)}
                         size="sm"
-                        bg={item}
+                        bg={item.color}
                         aria-label={""}
                       />
                     ))}

@@ -28,18 +28,23 @@ import { CgCopy } from "react-icons/cg";
 import { SlOptionsVertical } from "react-icons/sl";
 import { User } from "firebase/auth";
 
+interface Note {
+  id: string;
+  title: string;
+  description: string;
+  color: string;
+}
+
 interface CardProps {
-  note?: any;
-  setChangeNote: (changeNote: boolean) => void;
-  changeNote: boolean;
+  note: Note;
 }
 
 export const CardNote = (props: CardProps) => {
-  const { setChangeNote, changeNote, note } = props;
+  const { note } = props;
   const [modalOpen, setModalOpen] = useState(false);
-  const toast = useToast()
-  const currentUser: User | null = auth.currentUser
-  const databaseRef = collection(database, "notes");
+  const toast = useToast();
+  const currentUser: User | null = auth.currentUser;
+  const databaseRef = collection(database, `notes/${currentUser?.uid}/data`);
 
   const handleCopy = (value: string) => {
     navigator.clipboard.writeText(value).then(() => {
@@ -76,11 +81,14 @@ export const CardNote = (props: CardProps) => {
           isClosable: true,
         });
       });
-    setChangeNote(!changeNote);
   };
 
   const handleDeletNote = () => {
-    let fieldToDelete = doc(database, "notes", note.id);
+    let fieldToDelete = doc(
+      database,
+      `notes/${currentUser?.uid}/data`,
+      note.id
+    );
     deleteDoc(fieldToDelete)
       .then(() => {
         toast({
@@ -98,12 +106,7 @@ export const CardNote = (props: CardProps) => {
           isClosable: true,
         });
       });
-    setChangeNote(!changeNote);
   };
-
-  useEffect(() => {
-    setChangeNote(!changeNote);
-  }, [modalOpen]);
 
   return (
     <>
@@ -127,7 +130,7 @@ export const CardNote = (props: CardProps) => {
                 aria-label="Options"
                 icon={<SlOptionsVertical />}
                 variant="outline"
-                size='sm'
+                size="sm"
               />
               <Portal>
                 <MenuList>
