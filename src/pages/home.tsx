@@ -106,9 +106,9 @@ const Home = () => {
             spacing={5}
             my={10}
           >
-            {notes?.map((note, i) => (
+            {notes?.map((note) => (
               <motion.div
-                key={i}
+                key={note.id}
                 initial={{ opacity: 0, y: "2vw" }}
                 animate={{ opacity: 1, y: "0px" }}
                 transition={{ type: "spring", duration: 1, bounce: 0 }}

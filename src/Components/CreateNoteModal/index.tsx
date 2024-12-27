@@ -17,6 +17,7 @@ import {
   useToast,
   Center,
   IconButton,
+  Stack,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { useState, useEffect } from "react";
@@ -138,22 +139,33 @@ export const CreateNoteModal = (props: ModalProps) => {
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered size={"xl"}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>{data ? "Editar Nota" : "Nova Nota"}</ModalHeader>
           <ModalCloseButton />
           <form onSubmit={formik.handleSubmit}>
             <ModalBody>
-              <Flex gap={5} direction="column">
-                <FormControl>
+              <Stack spacing={5}>
+                <FormControl isRequired>
                   <FormLabel>Titulo</FormLabel>
                   <Input
                     type="text"
                     name="title"
-                    required
+                    variant={"filled"}
                     onChange={formik.handleChange}
                     value={formik.values.title}
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel>Descrição</FormLabel>
+                  <Textarea
+                    name="description"
+                    variant={"filled"}
+                    rows={5}
+                    onChange={formik.handleChange}
+                    value={formik.values.description}
                   />
                 </FormControl>
                 <FormControl>
@@ -165,30 +177,21 @@ export const CreateNoteModal = (props: ModalProps) => {
                         icon={color === item.color ? <CheckIcon /> : <></>}
                         colorScheme={item.color}
                         onClick={() => setColor(item.color)}
-                        size="sm"
+                        rounded={"full"}
                         bg={item.color}
                         aria-label={""}
                       />
                     ))}
                   </Center>
                 </FormControl>
-                <FormControl>
-                  <FormLabel>Descrição</FormLabel>
-                  <Textarea
-                    name="description"
-                    required
-                    onChange={formik.handleChange}
-                    value={formik.values.description}
-                  />
-                </FormControl>
-              </Flex>
+              </Stack>
             </ModalBody>
 
-            <ModalFooter>
-              <Button variant="ghost" mr={3} onClick={onClose}>
+            <ModalFooter gap={5}>
+              <Button variant="solid" w={"full"} onClick={onClose}>
                 Cancelar
               </Button>
-              <Button colorScheme="blue" type="submit">
+              <Button colorScheme="blue" w={"full"} type="submit">
                 {data ? "Editar" : "Salvar"}
               </Button>
             </ModalFooter>
