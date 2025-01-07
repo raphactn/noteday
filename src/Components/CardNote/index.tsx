@@ -56,7 +56,25 @@ export const CardNote = (props: CardProps) => {
       });
     });
   };
+  const handleCopyFormat = (value: string) => {
+    const textSplit = value.split(",");
+    const result = [];
 
+    for (const item of textSplit) {
+      if (item.includes("+55")) {
+        result.push(item.replace("+55", "").replace(/\D/g, "").trim());
+      }
+    }
+
+    navigator.clipboard.writeText(result.join()).then(() => {
+      toast({
+        title: `Nota copiada!`,
+        position: "top-right",
+        status: "success",
+        isClosable: true,
+      });
+    });
+  };
   const handleCloneNote = (value: any) => {
     const note = {
       title: value.title,
@@ -144,6 +162,12 @@ export const CardNote = (props: CardProps) => {
                     <Center gap={2}>
                       <EditIcon />
                       <Text>Editar Nota</Text>
+                    </Center>
+                  </MenuItem>
+                  <MenuItem onClick={() => handleCopyFormat(note.description)}>
+                    <Center gap={2}>
+                      <MdContentCopy />
+                      <Text>Copiar e formatar</Text>
                     </Center>
                   </MenuItem>
                   <ConfirmationModal onConfirm={() => handleDeletNote()} />
