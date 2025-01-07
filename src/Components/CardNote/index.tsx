@@ -62,7 +62,15 @@ export const CardNote = (props: CardProps) => {
 
     for (const item of textSplit) {
       if (item.includes("+55")) {
-        result.push(item.replace("+55", "").replace(/\D/g, "").trim());
+        // Remove "+55", caracteres não numéricos e espaços extras
+        let formattedNumber = item.replace("+55", "").replace(/\D/g, "").trim();
+
+        // Adiciona o "9" após o DDD se o número tiver 10 dígitos
+        if (formattedNumber.length === 10) {
+          formattedNumber = formattedNumber.replace(/^(\d{2})(\d+)/, "$19$2");
+        }
+
+        result.push(formattedNumber);
       }
     }
 
@@ -75,6 +83,7 @@ export const CardNote = (props: CardProps) => {
       });
     });
   };
+
   const handleCloneNote = (value: any) => {
     const note = {
       title: value.title,
